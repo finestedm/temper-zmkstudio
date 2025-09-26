@@ -1,7 +1,7 @@
 if SHIELD_KUKULOCO_LEFT
 
 config ZMK_KEYBOARD_NAME
-    default "KukuLoco"
+    default "KukuLoco_white"
 
 config ZMK_SPLIT_ROLE_CENTRAL
     default y
