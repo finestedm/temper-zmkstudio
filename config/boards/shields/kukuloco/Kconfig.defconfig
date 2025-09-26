@@ -1,14 +1,14 @@
-if SHIELD_KUKULOCO_LEFT
+if SHIELD_NIKLASAE_LEFT
 
 config ZMK_KEYBOARD_NAME
-    default "KukuLoco"
+    default "niklasae"
 
 config ZMK_SPLIT_ROLE_CENTRAL
     default y
 
 endif
 
-if SHIELD_KUKULOCO_LEFT || SHIELD_KUKULOCO_RIGHT
+if SHIELD_NIKLASAE_LEFT || SHIELD_NIKLASAE_RIGHT
 
 config ZMK_SPLIT
     default y

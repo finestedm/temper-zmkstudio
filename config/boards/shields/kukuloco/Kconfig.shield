@@ -1,5 +1,5 @@
-config SHIELD_KUKULOCO_LEFT
-    def_bool $(shields_list_contains,kukuloco_left)
+config SHIELD_NIKLASAE_LEFT
+    def_bool $(shields_list_contains,niklasae_left)
 
-config SHIELD_KUKULOCO_RIGHT
-    def_bool $(shields_list_contains,kukuloco_right)
+config SHIELD_NIKLASAE_RIGHT
+    def_bool $(shields_list_contains,niklasae_right)

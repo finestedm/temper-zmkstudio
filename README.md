@@ -1,5 +1,7 @@
 
-# Kukuloco custom split ergonomics keyboard
+# Temper custom split ergonomics keyboard
+This branch is flavored for niklasae.
+
 Based on [temper](https://github.com/raeedcho/temper) that itself is a great continuation of [chocofi](https://github.com/pashutk/chocofi/).
 
 ## Hardware
