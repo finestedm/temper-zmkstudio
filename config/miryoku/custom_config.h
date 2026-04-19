@@ -5,9 +5,13 @@
 #define MIRYOKU_EXTRA_COLEMAKDH
 #define MIRYOKU_NAV_VI
 
-// Add this to put Studio Unlock on the Media Layer (Top Left Key)
-#define MIRYOKU_LAYER_MEDIA \
-&studio_unlock,    &kp VOLD,          &kp VOLU,          &kp MUTE,          &trans,            &trans,            &kp STOP,          &kp PREV,          &kp NEXT,          &kp PP,            \
-&kp LGUI,          &kp LALT,          &kp LCTRL,         &kp LSHFT,         &trans,            &trans,            &kp LSHFT,         &kp LCTRL,         &kp LALT,          &kp LGUI,          \
-&trans,            &kp ALGR,          &trans,            &trans,            &trans,            &trans,            &trans,            &trans,            &kp ALGR,          &trans,            \
-&trans,            &trans,            &trans,            &kp PP,            &kp NEXT,          &kp PREV,          &trans,            &trans,            &trans,            &trans
+#define MIRYOKU_LAYOUT_MAPPING_36( \
+    K00, K01, K02, K03, K04, K05, K06, K07, K08, K09, \
+    K10, K11, K12, K13, K14, K15, K16, K17, K18, K19, \
+    K20, K21, K22, K23, K24, K25, K26, K27, K28, K29, \
+    N30, N31, N32, N33, N34, N35 \
+) \
+&none &studio_unlock K01 K02 K03 K04 K05 K06 K07 K08 &none \
+&none K10 K11 K12 K13 K14 K15 K16 K17 K18 &none \
+&none K20 K21 K22 K23 K24 K25 K26 K27 K28 &none \
+          N30 N31 N32 N33 N34 N35
