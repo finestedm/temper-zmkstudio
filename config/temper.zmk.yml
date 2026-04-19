@@ -1,6 +1,6 @@
 file_format: "1"
-id: kukuloco
-name: Chocofi Kukuloco
+id: temper
+name: Chocofi Temper
 type: shield
 url: https://github.com/leikoilja/zmk-config-temper/
 requires: [pro_micro]
@@ -10,5 +10,5 @@ features:
   - studio
   # - display
 siblings:
-  - kukuloco_left
-  - kukuloco_right
+  - temper_left
+  - temper_right
