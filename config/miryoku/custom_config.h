@@ -10,4 +10,4 @@
 &studio_unlock,    &kp VOLD,          &kp VOLU,          &kp MUTE,          &trans,            &trans,            &kp STOP,          &kp PREV,          &kp NEXT,          &kp PP,            \
 &kp LGUI,          &kp LALT,          &kp LCTRL,         &kp LSHFT,         &trans,            &trans,            &kp LSHFT,         &kp LCTRL,         &kp LALT,          &kp LGUI,          \
 &trans,            &kp ALGR,          &trans,            &trans,            &trans,            &trans,            &trans,            &trans,            &kp ALGR,          &trans,            \
-&trans,            &trans,            &trans,            &kp PP,            &kp NEXT,          &kp PREV
+&trans,            &trans,            &trans,            &kp PP,            &kp NEXT,          &kp PREV,          &trans,            &trans,            &trans,            &trans
