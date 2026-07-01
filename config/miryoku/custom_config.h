@@ -7,7 +7,7 @@
 
 // We manually pad the 36-key layout to 40 keys using &none
 #define MIRYOKU_LAYER_BUTTON \
-&studio_unlock, &studio_unlock, &kp MCLK, &kp RCLK, &kp LCLK, &kp LCLK, &kp RCLK, &kp MCLK, &trans, &none, \
+&studio_unlock, &studio_unlock, U_BTN3, U_BTN2, U_BTN1, U_BTN1, U_BTN2, U_BTN3, &trans, &none, \
 &none, &kp LGUI, &kp LALT, &kp LCTRL, &kp LSHFT, &kp LSHFT, &kp LCTRL, &kp LALT, &kp LGUI, &none, \
 &none, &trans, &kp ALGR, &trans, &trans, &trans, &trans, &kp ALGR, &trans, &none, \
-&none, &none, &kp LCLK, &kp RCLK, &kp MCLK, &kp MCLK, &kp RCLK, &kp LCLK, &none, &none
+&none, &none, U_BTN1, U_BTN2, U_BTN3, U_BTN3, U_BTN2, U_BTN1, &none, &none
