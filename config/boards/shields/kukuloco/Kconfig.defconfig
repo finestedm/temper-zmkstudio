@@ -1,14 +1,14 @@
-if SHIELD_KUKULOCO_LEFT
+if SHIELD_TEMPER_LEFT
 
 config ZMK_KEYBOARD_NAME
-    default "KukuLoco"
+    default "FunkeeB_Temper"
 
 config ZMK_SPLIT_ROLE_CENTRAL
     default y
 
 endif
 
-if SHIELD_KUKULOCO_LEFT || SHIELD_KUKULOCO_RIGHT
+if SHIELD_TEMPER_LEFT || SHIELD_TEMPER_RIGHT
 
 config ZMK_SPLIT
     default y

@@ -1,6 +1,6 @@
 file_format: "1"
 id: temper
-name: Chocofi Temper
+name: FunkeeB_Temper
 type: shield
 url: https://github.com/leikoilja/zmk-config-temper/
 requires: [pro_micro]
