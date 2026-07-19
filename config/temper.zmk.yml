@@ -4,11 +4,11 @@ name: FunkeeB_Temper
 type: shield
 url: https://github.com/leikoilja/zmk-config-temper/
 requires: [pro_micro]
-# exposes: [i2c_oled]
+exposes: [i2c_oled]
 features:
   - keys
   - studio
-  # - display
+  - display
 siblings:
   - temper_left
   - temper_right
