@@ -7,12 +7,8 @@ Use boards based on nrf52840 like ProMicro or Nice!Nanov2. This means that I use
 
 ## Displays
 
-The left half remains the split central and uses
-[`dsifry/nice-view-mod`](https://github.com/dsifry/nice-view-mod) to show a Bongo
-Cat that reacts to key presses from both halves. The right half uses ZMK's
-lightweight built-in peripheral screen with a large battery percentage and a
-connection icon. Connect the left half to the host when using USB or ZMK
-Studio.
-
-ZMK and the build workflow are pinned to `v0.3.0` for compatibility with the
-Bongo Cat widget.
+The left half remains the split central and uses the local `nice_view_bongo`
+shield to show a Bongo Cat that reacts to key presses from both halves. The
+widget uses the current ZMK/LVGL 9 display API. The right half uses ZMK's native
+nice!view peripheral status screen. Connect the left half to the host when using
+USB or ZMK Studio.
