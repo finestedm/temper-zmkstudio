@@ -46,6 +46,7 @@ struct zmk_widget_bongo_status {
     bool alternate_paw;
     bool show_tap_frame;
     bool sleeping;
+    uint32_t key_press_count;
 };
 
 int zmk_widget_bongo_status_init(struct zmk_widget_bongo_status *widget, lv_obj_t *parent);

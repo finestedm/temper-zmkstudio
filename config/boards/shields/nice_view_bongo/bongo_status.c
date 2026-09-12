@@ -38,7 +38,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 struct bongo_key_state {
-    bool pressed;
+    uint32_t press_count;
 };
 
 struct bongo_battery_state {
@@ -215,16 +215,17 @@ static void draw_sleep_overlay(lv_obj_t *canvas) {
     lv_draw_rect_dsc_t white;
     lv_draw_label_dsc_t sleep_label;
 
-    init_rect(&black, BONGO_FOREGROUND, 0, 2);
+    init_rect(&black, BONGO_FOREGROUND, 0, 0);
     init_rect(&white, BONGO_BACKGROUND, 0, 0);
 
-    /* Cover the awake face and replace it with two compact closed eyes. */
-    draw_rect(canvas, BONGO_FRAME_X + 26, BONGO_FRAME_Y + 14, 22, 8, &black);
-    draw_rect(canvas, BONGO_FRAME_X + 29, BONGO_FRAME_Y + 18, 5, 1, &white);
-    draw_rect(canvas, BONGO_FRAME_X + 40, BONGO_FRAME_Y + 18, 5, 1, &white);
+    /* Keep idle frame 0 and only replace its open eyes with short closed-eye lines. */
+    draw_rect(canvas, BONGO_FRAME_X + 21, BONGO_FRAME_Y + 13, 2, 3, &black);
+    draw_rect(canvas, BONGO_FRAME_X + 34, BONGO_FRAME_Y + 18, 2, 2, &black);
+    draw_rect(canvas, BONGO_FRAME_X + 20, BONGO_FRAME_Y + 14, 4, 1, &white);
+    draw_rect(canvas, BONGO_FRAME_X + 33, BONGO_FRAME_Y + 19, 4, 1, &white);
 
     init_label(&sleep_label, LV_TEXT_ALIGN_RIGHT);
-    draw_text(canvas, 36, BONGO_FRAME_Y - 11, 29, &sleep_label, "Zzzz");
+    draw_text(canvas, 36, BONGO_FRAME_Y - 11, 29, &sleep_label, "ZZzz");
 }
 
 static void draw_source_bongo_cat(struct zmk_widget_bongo_status *widget) {
@@ -427,18 +428,28 @@ ZMK_DISPLAY_WIDGET_LISTENER(bongo_wpm_listener, struct bongo_wpm_state, wpm_upda
 ZMK_SUBSCRIPTION(bongo_wpm_listener, zmk_wpm_state_changed);
 
 static void key_update_cb(struct bongo_key_state state) {
-    if (!state.pressed) {
-        return;
-    }
-
+    bool handled_press = false;
     bool woke_from_sleep = false;
     struct zmk_widget_bongo_status *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        if (widget->key_press_count == state.press_count) {
+            continue;
+        }
+
+        const uint32_t press_delta = state.press_count - widget->key_press_count;
+        widget->key_press_count = state.press_count;
+        handled_press = true;
         woke_from_sleep = woke_from_sleep || widget->sleeping;
         widget->sleeping = false;
         widget->show_tap_frame = true;
-        widget->alternate_paw = !widget->alternate_paw;
+        if ((press_delta & 1U) != 0U) {
+            widget->alternate_paw = !widget->alternate_paw;
+        }
         draw_frame(widget);
+    }
+
+    if (!handled_press) {
+        return;
     }
 
     k_work_reschedule_for_queue(zmk_display_work_q(), &bongo_animation_work,
@@ -451,8 +462,13 @@ static void key_update_cb(struct bongo_key_state state) {
 }
 
 static struct bongo_key_state key_get_state(const zmk_event_t *eh) {
+    static uint32_t press_count;
     const struct zmk_keycode_state_changed *event = as_zmk_keycode_state_changed(eh);
-    return (struct bongo_key_state){.pressed = event != NULL && event->state};
+    if (event != NULL && event->state) {
+        press_count++;
+    }
+
+    return (struct bongo_key_state){.press_count = press_count};
 }
 
 ZMK_DISPLAY_WIDGET_LISTENER(bongo_key_listener, struct bongo_key_state, key_update_cb,
