@@ -1,0 +1,4 @@
+if(CONFIG_ZMK_DISPLAY AND CONFIG_NICE_VIEW_FUNKEEB_WIDGET)
+  zephyr_library_sources(custom_status_screen.c)
+  zephyr_library_sources(right_status.c)
+endif()
