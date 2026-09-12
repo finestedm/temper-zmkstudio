@@ -32,7 +32,6 @@ config ZMK_DISPLAY_STATUS_SCREEN_CUSTOM
 
 config NICE_VIEW_BONGO_WIDGET
     bool "Bongo Cat status widget for nice!view"
-    select LV_FONT_MONTSERRAT_14
     select LV_FONT_UNSCII_8
     select LV_USE_CANVAS
     select ZMK_WPM
