@@ -28,8 +28,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define BONGO_IDLE_TIMEOUT K_MINUTES(1)
 #define BONGO_IDLE_FRAME_PERIOD K_MSEC(200)
 #define BONGO_TAP_HOLD K_MSEC(500)
-#define BONGO_FRAME_X 2
-#define BONGO_FRAME_Y 72
+#define BONGO_FRAME_X 0
+#define BONGO_FRAME_Y 64
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
@@ -143,10 +143,10 @@ static void draw_indicators(lv_obj_t *canvas, const struct zmk_widget_bongo_stat
     snprintf(wpm_text, sizeof(wpm_text), "%u WPM", widget->wpm);
 
     draw_battery(canvas, widget->battery);
-    draw_text(canvas, 25, 1, 22, &left, battery_text);
-    draw_text(canvas, 48, 1, 18, &right, connection_text);
+    draw_text(canvas, 34, 1, 32, &right, battery_text);
     draw_text(canvas, 2, 14, 64, &left, layer_text);
     draw_text(canvas, 2, 25, 64, &left, wpm_text);
+    draw_text(canvas, 2, 36, 64, &left, connection_text);
 }
 
 static void draw_source_bitmap(struct zmk_widget_bongo_status *widget,
@@ -156,7 +156,7 @@ static void draw_source_bitmap(struct zmk_widget_bongo_status *widget,
 
     for (uint32_t y = 0; y < BONGO_FRAME_HEIGHT; y++) {
         for (uint32_t x = 0; x < BONGO_FRAME_WIDTH; x++) {
-            const uint8_t packed = bitmap[y * (BONGO_FRAME_WIDTH / 8) + x / 8];
+            const uint8_t packed = bitmap[y * BONGO_FRAME_STRIDE_BYTES + x / 8];
             if ((packed & BIT(7 - (x % 8))) != 0) {
                 widget->drawing_buf[(y_offset + y) * stride + x_offset + x] = 0x00;
             }
@@ -178,7 +178,7 @@ static void draw_sleep_overlay(lv_obj_t *canvas) {
     draw_rect(canvas, BONGO_FRAME_X + 31, BONGO_FRAME_Y + 15, 4, 1, &white);
 
     init_label(&sleep_label, LV_TEXT_ALIGN_RIGHT);
-    draw_text(canvas, 36, 41, 29, &sleep_label, "Zzzz");
+    draw_text(canvas, 36, 50, 29, &sleep_label, "Zzzz");
 }
 
 static void draw_source_bongo_cat(struct zmk_widget_bongo_status *widget) {
