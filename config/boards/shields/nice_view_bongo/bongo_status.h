@@ -38,7 +38,9 @@ struct zmk_widget_bongo_status {
     uint8_t profile_index;
     const char *layer_label;
     enum bongo_connection_status connection;
+    uint8_t idle_frame;
     bool alternate_paw;
+    bool show_tap_frame;
     bool sleeping;
 };
 

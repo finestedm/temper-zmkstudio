@@ -1,4 +1,5 @@
 #include "bongo_status.h"
+#include "bongo_frames.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -25,6 +26,10 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define BONGO_BACKGROUND lv_color_white()
 #define BONGO_FOREGROUND lv_color_black()
 #define BONGO_IDLE_TIMEOUT K_MINUTES(1)
+#define BONGO_IDLE_FRAME_PERIOD K_MSEC(200)
+#define BONGO_TAP_HOLD K_MSEC(500)
+#define BONGO_FRAME_X 2
+#define BONGO_FRAME_Y 72
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
@@ -60,14 +65,6 @@ static void init_rect(lv_draw_rect_dsc_t *dsc, lv_color_t fill, int border_width
     dsc->radius = radius;
 }
 
-static void init_line(lv_draw_line_dsc_t *dsc, int width) {
-    lv_draw_line_dsc_init(dsc);
-    dsc->color = BONGO_FOREGROUND;
-    dsc->width = width;
-    dsc->round_start = true;
-    dsc->round_end = true;
-}
-
 static void init_label(lv_draw_label_dsc_t *dsc, lv_text_align_t align) {
     lv_draw_label_dsc_init(dsc);
     dsc->color = BONGO_FOREGROUND;
@@ -81,22 +78,6 @@ static void draw_rect(lv_obj_t *canvas, int x, int y, int width, int height,
     lv_canvas_init_layer(canvas, &layer);
     lv_area_t coords = {x, y, x + width - 1, y + height - 1};
     lv_draw_rect(&layer, dsc, &coords);
-    lv_canvas_finish_layer(canvas, &layer);
-}
-
-static void draw_line(lv_obj_t *canvas, const lv_point_t points[], uint32_t point_count,
-                      lv_draw_line_dsc_t *dsc) {
-    lv_layer_t layer;
-    lv_canvas_init_layer(canvas, &layer);
-
-    for (uint32_t i = 1; i < point_count; i++) {
-        dsc->p1.x = points[i - 1].x;
-        dsc->p1.y = points[i - 1].y;
-        dsc->p2.x = points[i].x;
-        dsc->p2.y = points[i].y;
-        lv_draw_line(&layer, dsc);
-    }
-
     lv_canvas_finish_layer(canvas, &layer);
 }
 
@@ -168,76 +149,55 @@ static void draw_indicators(lv_obj_t *canvas, const struct zmk_widget_bongo_stat
     draw_text(canvas, 2, 25, 64, &left, wpm_text);
 }
 
-static void draw_paw(lv_obj_t *canvas, int x, bool tapping) {
-    lv_draw_rect_dsc_t outline;
-    lv_draw_rect_dsc_t black;
-    lv_draw_line_dsc_t motion_line;
+static void draw_source_bitmap(struct zmk_widget_bongo_status *widget,
+                               const uint8_t *bitmap, int x_offset, int y_offset) {
+    const uint32_t stride =
+        lv_draw_buf_width_to_stride(BONGO_LOGICAL_WIDTH, BONGO_COLOR_FORMAT);
 
-    init_rect(&outline, BONGO_BACKGROUND, 2, 9);
-    init_rect(&black, BONGO_FOREGROUND, 0, 3);
-    init_line(&motion_line, 2);
-
-    if (tapping) {
-        /* The striking paw reaches visibly lower than the raised paw. */
-        draw_rect(canvas, x, 104, 20, 50, &outline);
-
-        const lv_point_t left_tap[] = {{x + 3, 155}, {x + 1, 159}};
-        const lv_point_t middle_tap[] = {{x + 10, 155}, {x + 10, 159}};
-        const lv_point_t right_tap[] = {{x + 17, 155}, {x + 19, 159}};
-        draw_line(canvas, left_tap, 2, &motion_line);
-        draw_line(canvas, middle_tap, 2, &motion_line);
-        draw_line(canvas, right_tap, 2, &motion_line);
-    } else {
-        /* The raised paw shows the simple monochrome paw pads from Bongo Cat. */
-        draw_rect(canvas, x, 104, 20, 32, &outline);
-        draw_rect(canvas, x + 7, 119, 6, 8, &black);
-        draw_rect(canvas, x + 3, 113, 4, 4, &black);
-        draw_rect(canvas, x + 8, 111, 4, 4, &black);
-        draw_rect(canvas, x + 13, 113, 4, 4, &black);
+    for (uint32_t y = 0; y < BONGO_FRAME_HEIGHT; y++) {
+        for (uint32_t x = 0; x < BONGO_FRAME_WIDTH; x++) {
+            const uint8_t packed = bitmap[y * (BONGO_FRAME_WIDTH / 8) + x / 8];
+            if ((packed & BIT(7 - (x % 8))) != 0) {
+                widget->drawing_buf[(y_offset + y) * stride + x_offset + x] = 0x00;
+            }
+        }
     }
 }
 
-static void draw_bongo_cat(lv_obj_t *canvas, bool alternate_paw, bool sleeping) {
+static void draw_sleep_overlay(lv_obj_t *canvas) {
     lv_draw_rect_dsc_t black;
-    lv_draw_line_dsc_t outline;
-    lv_draw_line_dsc_t face;
+    lv_draw_rect_dsc_t white;
     lv_draw_label_dsc_t sleep_label;
 
     init_rect(&black, BONGO_FOREGROUND, 0, 2);
-    init_line(&outline, 3);
-    init_line(&face, 2);
+    init_rect(&white, BONGO_BACKGROUND, 0, 0);
 
-    lv_canvas_fill_bg(canvas, BONGO_BACKGROUND, LV_OPA_COVER);
+    /* Cover the awake face and replace it with two compact closed eyes. */
+    draw_rect(canvas, BONGO_FRAME_X + 20, BONGO_FRAME_Y + 12, 17, 7, &black);
+    draw_rect(canvas, BONGO_FRAME_X + 22, BONGO_FRAME_Y + 15, 4, 1, &white);
+    draw_rect(canvas, BONGO_FRAME_X + 31, BONGO_FRAME_Y + 15, 4, 1, &white);
 
-    /* The characteristic Bongo Cat blob: peaked ears, arched back, and tail. */
-    const lv_point_t body[] = {
-        {4, 108}, {2, 99},  {3, 82},  {8, 67},  {16, 57}, {21, 38},
-        {29, 50}, {40, 52}, {51, 60}, {63, 54}, {64, 75}, {61, 87},
-        {66, 99}, {62, 108}, {55, 114}, {13, 114}, {4, 108},
-    };
-    draw_line(canvas, body, ARRAY_SIZE(body), &outline);
+    init_label(&sleep_label, LV_TEXT_ALIGN_RIGHT);
+    draw_text(canvas, 36, 41, 29, &sleep_label, "Zzzz");
+}
 
-    if (sleeping) {
-        /* Closed eyes and a compact sleep bubble below the status bar. */
-        const lv_point_t left_eye[] = {{19, 77}, {23, 80}, {27, 77}};
-        const lv_point_t right_eye[] = {{43, 77}, {47, 80}, {51, 77}};
-        draw_line(canvas, left_eye, ARRAY_SIZE(left_eye), &face);
-        draw_line(canvas, right_eye, ARRAY_SIZE(right_eye), &face);
+static void draw_source_bongo_cat(struct zmk_widget_bongo_status *widget) {
+    const uint8_t *frame;
 
-        init_label(&sleep_label, LV_TEXT_ALIGN_RIGHT);
-        draw_text(canvas, 35, 36, 30, &sleep_label, "Zzzz");
+    lv_canvas_fill_bg(widget->drawing_canvas, BONGO_BACKGROUND, LV_OPA_COVER);
+
+    if (widget->sleeping) {
+        frame = bongo_idle_frames[0];
+    } else if (widget->show_tap_frame) {
+        frame = bongo_tap_frames[widget->alternate_paw ? 1 : 0];
     } else {
-        /* Dot eyes from the awake frames of the original animation. */
-        draw_rect(canvas, 21, 75, 4, 6, &black);
-        draw_rect(canvas, 45, 75, 4, 6, &black);
+        frame = bongo_idle_frames[widget->idle_frame % BONGO_IDLE_FRAME_COUNT];
     }
 
-    /* A single mirrored 3 (Ɛ) gives the face a cleaner cat-like mouth. */
-    const lv_point_t mouth[] = {{40, 86}, {35, 85}, {32, 88}, {35, 91}, {40, 90}};
-    draw_line(canvas, mouth, ARRAY_SIZE(mouth), &face);
-
-    draw_paw(canvas, 8, !alternate_paw);
-    draw_paw(canvas, 40, alternate_paw);
+    draw_source_bitmap(widget, frame, BONGO_FRAME_X, BONGO_FRAME_Y);
+    if (widget->sleeping) {
+        draw_sleep_overlay(widget->drawing_canvas);
+    }
 }
 
 static void rotate_for_mounting(struct zmk_widget_bongo_status *widget) {
@@ -253,10 +213,33 @@ static void rotate_for_mounting(struct zmk_widget_bongo_status *widget) {
 }
 
 static void draw_frame(struct zmk_widget_bongo_status *widget) {
-    draw_bongo_cat(widget->drawing_canvas, widget->alternate_paw, widget->sleeping);
+    draw_source_bongo_cat(widget);
     draw_indicators(widget->drawing_canvas, widget);
     rotate_for_mounting(widget);
 }
+
+static void animation_work_cb(struct k_work *work) {
+    bool keep_animating = false;
+    struct zmk_widget_bongo_status *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        if (widget->sleeping) {
+            continue;
+        }
+
+        widget->show_tap_frame = false;
+        widget->idle_frame = (widget->idle_frame + 1) % BONGO_IDLE_FRAME_COUNT;
+        draw_frame(widget);
+        keep_animating = true;
+    }
+
+    if (keep_animating) {
+        k_work_reschedule_for_queue(zmk_display_work_q(),
+                                    CONTAINER_OF(work, struct k_work_delayable, work),
+                                    BONGO_IDLE_FRAME_PERIOD);
+    }
+}
+
+K_WORK_DELAYABLE_DEFINE(bongo_animation_work, animation_work_cb);
 
 static void idle_work_cb(struct k_work *work) {
     ARG_UNUSED(work);
@@ -264,6 +247,7 @@ static void idle_work_cb(struct k_work *work) {
     struct zmk_widget_bongo_status *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
         widget->sleeping = true;
+        widget->show_tap_frame = false;
         draw_frame(widget);
     }
 }
@@ -377,10 +361,13 @@ static void key_update_cb(struct bongo_key_state state) {
     struct zmk_widget_bongo_status *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
         widget->sleeping = false;
+        widget->show_tap_frame = true;
         widget->alternate_paw = !widget->alternate_paw;
         draw_frame(widget);
     }
 
+    k_work_reschedule_for_queue(zmk_display_work_q(), &bongo_animation_work,
+                                BONGO_TAP_HOLD);
     restart_idle_timer();
 }
 
@@ -414,6 +401,8 @@ int zmk_widget_bongo_status_init(struct zmk_widget_bongo_status *widget, lv_obj_
     bongo_layer_listener_init();
     bongo_wpm_listener_init();
     bongo_key_listener_init();
+    k_work_reschedule_for_queue(zmk_display_work_q(), &bongo_animation_work,
+                                BONGO_IDLE_FRAME_PERIOD);
     restart_idle_timer();
 
     return 0;
