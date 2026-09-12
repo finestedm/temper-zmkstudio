@@ -10,6 +10,7 @@
 #define BONGO_DISPLAY_WIDTH 160
 #define BONGO_DISPLAY_HEIGHT 68
 #define BONGO_COLOR_FORMAT LV_COLOR_FORMAT_L8
+#define BONGO_WPM_HISTORY_SIZE 16
 
 #define BONGO_DRAW_BUF_SIZE                                                                       \
     LV_CANVAS_BUF_SIZE(BONGO_LOGICAL_WIDTH, BONGO_LOGICAL_HEIGHT,                                 \
@@ -34,6 +35,9 @@ struct zmk_widget_bongo_status {
     uint8_t display_buf[BONGO_DISPLAY_BUF_SIZE];
     uint8_t battery;
     uint8_t wpm;
+    uint8_t wpm_history[BONGO_WPM_HISTORY_SIZE];
+    uint8_t wpm_history_head;
+    uint8_t wpm_history_count;
     uint8_t layer_index;
     uint8_t profile_index;
     const char *layer_label;

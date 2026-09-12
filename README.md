@@ -13,6 +13,8 @@ widget uses the current ZMK/LVGL 9 display API and rotates its portrait UI for
 the keyboard's display mounting. The right half uses ZMK's native nice!view
 peripheral status screen. Connect the left half to the host when using USB or
 ZMK Studio. After one minute without a key press, the cat closes its eyes and
-displays `Zzzz`; the next key press wakes it immediately. The seven animation
-frames are adapted from [SamIAm2000/zmk](https://github.com/SamIAm2000/zmk)
-(MIT): they are scaled for this portrait layout and the flower is removed.
+displays `Zzzz`; the next key press wakes it immediately. A rolling 16-second
+WPM graph fills the space between the status indicators and the bottom-aligned
+cat. The seven animation frames are adapted from
+[SamIAm2000/zmk](https://github.com/SamIAm2000/zmk) (MIT): they are scaled for
+this portrait layout and the flower is removed.

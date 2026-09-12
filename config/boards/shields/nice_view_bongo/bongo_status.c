@@ -29,7 +29,11 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define BONGO_IDLE_FRAME_PERIOD K_MSEC(200)
 #define BONGO_TAP_HOLD K_MSEC(500)
 #define BONGO_FRAME_X 0
-#define BONGO_FRAME_Y 64
+#define BONGO_FRAME_Y (BONGO_LOGICAL_HEIGHT - BONGO_FRAME_HEIGHT)
+#define BONGO_WPM_GRAPH_X 2
+#define BONGO_WPM_GRAPH_Y 52
+#define BONGO_WPM_GRAPH_WIDTH 64
+#define BONGO_WPM_GRAPH_HEIGHT 56
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
@@ -149,6 +153,48 @@ static void draw_indicators(lv_obj_t *canvas, const struct zmk_widget_bongo_stat
     draw_text(canvas, 2, 36, 64, &left, connection_text);
 }
 
+static void draw_wpm_graph(lv_obj_t *canvas,
+                           const struct zmk_widget_bongo_status *widget) {
+    lv_draw_rect_dsc_t black;
+    uint8_t scale = 60;
+
+    init_rect(&black, BONGO_FOREGROUND, 0, 0);
+
+    for (uint8_t i = 0; i < widget->wpm_history_count; i++) {
+        const uint8_t index =
+            (widget->wpm_history_head + BONGO_WPM_HISTORY_SIZE -
+             widget->wpm_history_count + i) %
+            BONGO_WPM_HISTORY_SIZE;
+        scale = MAX(scale, widget->wpm_history[index]);
+    }
+
+    /* Compact axes plus 16 three-pixel bars, oldest on the left. */
+    draw_rect(canvas, BONGO_WPM_GRAPH_X, BONGO_WPM_GRAPH_Y, 1,
+              BONGO_WPM_GRAPH_HEIGHT, &black);
+    draw_rect(canvas, BONGO_WPM_GRAPH_X, BONGO_WPM_GRAPH_Y +
+                                             BONGO_WPM_GRAPH_HEIGHT - 1,
+              BONGO_WPM_GRAPH_WIDTH, 1, &black);
+
+    for (uint8_t i = 0; i < widget->wpm_history_count; i++) {
+        const uint8_t index =
+            (widget->wpm_history_head + BONGO_WPM_HISTORY_SIZE -
+             widget->wpm_history_count + i) %
+            BONGO_WPM_HISTORY_SIZE;
+        const uint8_t value = widget->wpm_history[index];
+        if (value == 0) {
+            continue;
+        }
+
+        const uint8_t bar_height =
+            MIN(BONGO_WPM_GRAPH_HEIGHT - 2,
+                (value * (BONGO_WPM_GRAPH_HEIGHT - 2) + scale - 1) / scale);
+        const int x = BONGO_WPM_GRAPH_X + 1 +
+                      (BONGO_WPM_HISTORY_SIZE - widget->wpm_history_count + i) * 4;
+        const int y = BONGO_WPM_GRAPH_Y + BONGO_WPM_GRAPH_HEIGHT - 1 - bar_height;
+        draw_rect(canvas, x, y, 3, bar_height, &black);
+    }
+}
+
 static void draw_source_bitmap(struct zmk_widget_bongo_status *widget,
                                const uint8_t *bitmap, int x_offset, int y_offset) {
     const uint32_t stride =
@@ -173,12 +219,12 @@ static void draw_sleep_overlay(lv_obj_t *canvas) {
     init_rect(&white, BONGO_BACKGROUND, 0, 0);
 
     /* Cover the awake face and replace it with two compact closed eyes. */
-    draw_rect(canvas, BONGO_FRAME_X + 20, BONGO_FRAME_Y + 12, 17, 7, &black);
-    draw_rect(canvas, BONGO_FRAME_X + 22, BONGO_FRAME_Y + 15, 4, 1, &white);
-    draw_rect(canvas, BONGO_FRAME_X + 31, BONGO_FRAME_Y + 15, 4, 1, &white);
+    draw_rect(canvas, BONGO_FRAME_X + 26, BONGO_FRAME_Y + 14, 22, 8, &black);
+    draw_rect(canvas, BONGO_FRAME_X + 29, BONGO_FRAME_Y + 18, 5, 1, &white);
+    draw_rect(canvas, BONGO_FRAME_X + 40, BONGO_FRAME_Y + 18, 5, 1, &white);
 
     init_label(&sleep_label, LV_TEXT_ALIGN_RIGHT);
-    draw_text(canvas, 36, 50, 29, &sleep_label, "Zzzz");
+    draw_text(canvas, 36, BONGO_FRAME_Y - 11, 29, &sleep_label, "Zzzz");
 }
 
 static void draw_source_bongo_cat(struct zmk_widget_bongo_status *widget) {
@@ -215,6 +261,7 @@ static void rotate_for_mounting(struct zmk_widget_bongo_status *widget) {
 static void draw_frame(struct zmk_widget_bongo_status *widget) {
     draw_source_bongo_cat(widget);
     draw_indicators(widget->drawing_canvas, widget);
+    draw_wpm_graph(widget->drawing_canvas, widget);
     rotate_for_mounting(widget);
 }
 
@@ -240,6 +287,32 @@ static void animation_work_cb(struct k_work *work) {
 }
 
 K_WORK_DELAYABLE_DEFINE(bongo_animation_work, animation_work_cb);
+
+static void wpm_graph_work_cb(struct k_work *work) {
+    bool keep_sampling = false;
+    struct zmk_widget_bongo_status *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        if (widget->sleeping) {
+            continue;
+        }
+
+        widget->wpm_history[widget->wpm_history_head] = widget->wpm;
+        widget->wpm_history_head =
+            (widget->wpm_history_head + 1) % BONGO_WPM_HISTORY_SIZE;
+        widget->wpm_history_count =
+            MIN(widget->wpm_history_count + 1, BONGO_WPM_HISTORY_SIZE);
+        draw_frame(widget);
+        keep_sampling = true;
+    }
+
+    if (keep_sampling) {
+        k_work_reschedule_for_queue(zmk_display_work_q(),
+                                    CONTAINER_OF(work, struct k_work_delayable, work),
+                                    K_SECONDS(1));
+    }
+}
+
+K_WORK_DELAYABLE_DEFINE(bongo_wpm_graph_work, wpm_graph_work_cb);
 
 static void idle_work_cb(struct k_work *work) {
     ARG_UNUSED(work);
@@ -358,8 +431,10 @@ static void key_update_cb(struct bongo_key_state state) {
         return;
     }
 
+    bool woke_from_sleep = false;
     struct zmk_widget_bongo_status *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        woke_from_sleep = woke_from_sleep || widget->sleeping;
         widget->sleeping = false;
         widget->show_tap_frame = true;
         widget->alternate_paw = !widget->alternate_paw;
@@ -368,6 +443,10 @@ static void key_update_cb(struct bongo_key_state state) {
 
     k_work_reschedule_for_queue(zmk_display_work_q(), &bongo_animation_work,
                                 BONGO_TAP_HOLD);
+    if (woke_from_sleep) {
+        k_work_reschedule_for_queue(zmk_display_work_q(), &bongo_wpm_graph_work,
+                                    K_SECONDS(1));
+    }
     restart_idle_timer();
 }
 
@@ -403,6 +482,8 @@ int zmk_widget_bongo_status_init(struct zmk_widget_bongo_status *widget, lv_obj_
     bongo_key_listener_init();
     k_work_reschedule_for_queue(zmk_display_work_q(), &bongo_animation_work,
                                 BONGO_IDLE_FRAME_PERIOD);
+    k_work_reschedule_for_queue(zmk_display_work_q(), &bongo_wpm_graph_work,
+                                K_SECONDS(1));
     restart_idle_timer();
 
     return 0;
