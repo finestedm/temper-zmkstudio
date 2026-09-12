@@ -3,8 +3,8 @@
 #include <lvgl.h>
 #include <zephyr/kernel.h>
 
-/* Draw upright in the screen's physical 68x160 orientation, then rotate the
- * finished frame clockwise into the controller's 160x68 framebuffer. */
+/* Draw upright in the screen's physical 68x160 orientation, then transform the
+ * finished frame into the controller's landscape 160x68 framebuffer. */
 #define BONGO_LOGICAL_WIDTH 68
 #define BONGO_LOGICAL_HEIGHT 160
 #define BONGO_DISPLAY_WIDTH 160

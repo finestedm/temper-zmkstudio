@@ -132,7 +132,7 @@ static void draw_indicators(lv_obj_t *canvas, const struct zmk_widget_bongo_stat
     lv_draw_label_dsc_t right;
     char battery_text[6];
     char connection_text[6];
-    char layer_text[8];
+    char layer_text[9];
     char wpm_text[8];
 
     init_label(&left, LV_TEXT_ALIGN_LEFT);
@@ -155,17 +155,17 @@ static void draw_indicators(lv_obj_t *canvas, const struct zmk_widget_bongo_stat
     }
 
     if (widget->layer_label != NULL && strlen(widget->layer_label) > 0) {
-        snprintf(layer_text, sizeof(layer_text), "L %.4s", widget->layer_label);
+        snprintf(layer_text, sizeof(layer_text), "%.8s", widget->layer_label);
     } else {
-        snprintf(layer_text, sizeof(layer_text), "L%u", widget->layer_index);
+        snprintf(layer_text, sizeof(layer_text), "LAYER %u", widget->layer_index);
     }
     snprintf(wpm_text, sizeof(wpm_text), "%u WPM", widget->wpm);
 
     draw_battery(canvas, widget->battery);
     draw_text(canvas, 25, 1, 22, &left, battery_text);
     draw_text(canvas, 48, 1, 18, &right, connection_text);
-    draw_text(canvas, 2, 15, 30, &left, layer_text);
-    draw_text(canvas, 33, 15, 33, &right, wpm_text);
+    draw_text(canvas, 2, 14, 64, &left, layer_text);
+    draw_text(canvas, 2, 25, 64, &left, wpm_text);
 }
 
 static void draw_paw(lv_obj_t *canvas, int x, bool tapping) {
@@ -178,22 +178,22 @@ static void draw_paw(lv_obj_t *canvas, int x, bool tapping) {
     init_line(&motion_line, 2);
 
     if (tapping) {
-        /* The long paw is the one currently hitting the desk. */
-        draw_rect(canvas, x, 98, 20, 47, &outline);
+        /* The striking paw reaches visibly lower than the raised paw. */
+        draw_rect(canvas, x, 104, 20, 50, &outline);
 
-        const lv_point_t left_tap[] = {{x + 3, 150}, {x, 155}};
-        const lv_point_t middle_tap[] = {{x + 10, 151}, {x + 10, 157}};
-        const lv_point_t right_tap[] = {{x + 17, 150}, {x + 20, 155}};
+        const lv_point_t left_tap[] = {{x + 3, 155}, {x + 1, 159}};
+        const lv_point_t middle_tap[] = {{x + 10, 155}, {x + 10, 159}};
+        const lv_point_t right_tap[] = {{x + 17, 155}, {x + 19, 159}};
         draw_line(canvas, left_tap, 2, &motion_line);
         draw_line(canvas, middle_tap, 2, &motion_line);
         draw_line(canvas, right_tap, 2, &motion_line);
     } else {
         /* The raised paw shows the simple monochrome paw pads from Bongo Cat. */
-        draw_rect(canvas, x, 99, 20, 32, &outline);
-        draw_rect(canvas, x + 7, 114, 6, 8, &black);
-        draw_rect(canvas, x + 3, 108, 4, 4, &black);
-        draw_rect(canvas, x + 8, 106, 4, 4, &black);
-        draw_rect(canvas, x + 13, 108, 4, 4, &black);
+        draw_rect(canvas, x, 104, 20, 32, &outline);
+        draw_rect(canvas, x + 7, 119, 6, 8, &black);
+        draw_rect(canvas, x + 3, 113, 4, 4, &black);
+        draw_rect(canvas, x + 8, 111, 4, 4, &black);
+        draw_rect(canvas, x + 13, 113, 4, 4, &black);
     }
 }
 
@@ -211,36 +211,36 @@ static void draw_bongo_cat(lv_obj_t *canvas, bool alternate_paw, bool sleeping) 
 
     /* The characteristic Bongo Cat blob: peaked ears, arched back, and tail. */
     const lv_point_t body[] = {
-        {4, 103}, {2, 94},  {3, 77},  {8, 62},  {16, 52}, {21, 33},
-        {29, 45}, {40, 47}, {51, 55}, {63, 49}, {64, 70}, {61, 82},
-        {66, 94}, {62, 103}, {55, 109}, {13, 109}, {4, 103},
+        {4, 108}, {2, 99},  {3, 82},  {8, 67},  {16, 57}, {21, 38},
+        {29, 50}, {40, 52}, {51, 60}, {63, 54}, {64, 75}, {61, 87},
+        {66, 99}, {62, 108}, {55, 114}, {13, 114}, {4, 108},
     };
     draw_line(canvas, body, ARRAY_SIZE(body), &outline);
 
     if (sleeping) {
         /* Closed eyes and a compact sleep bubble below the status bar. */
-        const lv_point_t left_eye[] = {{19, 72}, {23, 75}, {27, 72}};
-        const lv_point_t right_eye[] = {{43, 72}, {47, 75}, {51, 72}};
+        const lv_point_t left_eye[] = {{19, 77}, {23, 80}, {27, 77}};
+        const lv_point_t right_eye[] = {{43, 77}, {47, 80}, {51, 77}};
         draw_line(canvas, left_eye, ARRAY_SIZE(left_eye), &face);
         draw_line(canvas, right_eye, ARRAY_SIZE(right_eye), &face);
 
         init_label(&sleep_label, LV_TEXT_ALIGN_RIGHT);
-        draw_text(canvas, 34, 25, 31, &sleep_label, "Zzzz");
+        draw_text(canvas, 35, 36, 30, &sleep_label, "Zzzz");
     } else {
         /* Dot eyes from the awake frames of the original animation. */
-        draw_rect(canvas, 21, 70, 4, 6, &black);
-        draw_rect(canvas, 45, 70, 4, 6, &black);
+        draw_rect(canvas, 21, 75, 4, 6, &black);
+        draw_rect(canvas, 45, 75, 4, 6, &black);
     }
 
-    /* The small W-shaped mouth stays visible in both states. */
-    const lv_point_t mouth[] = {{28, 80}, {31, 84}, {34, 80}, {37, 84}, {41, 80}};
+    /* A single mirrored 3 (Ɛ) gives the face a cleaner cat-like mouth. */
+    const lv_point_t mouth[] = {{40, 86}, {35, 85}, {32, 88}, {35, 91}, {40, 90}};
     draw_line(canvas, mouth, ARRAY_SIZE(mouth), &face);
 
     draw_paw(canvas, 8, !alternate_paw);
     draw_paw(canvas, 40, alternate_paw);
 }
 
-static void rotate_clockwise(struct zmk_widget_bongo_status *widget) {
+static void rotate_for_mounting(struct zmk_widget_bongo_status *widget) {
     const uint32_t source_stride =
         lv_draw_buf_width_to_stride(BONGO_LOGICAL_WIDTH, BONGO_COLOR_FORMAT);
     const uint32_t display_stride =
@@ -248,14 +248,14 @@ static void rotate_clockwise(struct zmk_widget_bongo_status *widget) {
 
     lv_draw_sw_rotate(widget->drawing_buf, widget->display_buf, BONGO_LOGICAL_WIDTH,
                       BONGO_LOGICAL_HEIGHT, source_stride, display_stride,
-                      LV_DISPLAY_ROTATION_90, BONGO_COLOR_FORMAT);
+                      LV_DISPLAY_ROTATION_270, BONGO_COLOR_FORMAT);
     lv_obj_invalidate(widget->display_canvas);
 }
 
 static void draw_frame(struct zmk_widget_bongo_status *widget) {
     draw_bongo_cat(widget->drawing_canvas, widget->alternate_paw, widget->sleeping);
     draw_indicators(widget->drawing_canvas, widget);
-    rotate_clockwise(widget);
+    rotate_for_mounting(widget);
 }
 
 static void idle_work_cb(struct k_work *work) {

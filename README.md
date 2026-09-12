@@ -9,8 +9,8 @@ Use boards based on nrf52840 like ProMicro or Nice!Nanov2. This means that I use
 
 The left half remains the split central and uses the local `nice_view_bongo`
 shield to show a Bongo Cat that reacts to key presses from both halves. The
-widget uses the current ZMK/LVGL 9 display API and rotates its portrait UI 90
-degrees clockwise for the keyboard's display mounting. The right half uses
-ZMK's native nice!view peripheral status screen. Connect the left half to the
-host when using USB or ZMK Studio. After one minute without a key press, the
-cat closes its eyes and displays `Zzzz`; the next key press wakes it immediately.
+widget uses the current ZMK/LVGL 9 display API and rotates its portrait UI for
+the keyboard's display mounting. The right half uses ZMK's native nice!view
+peripheral status screen. Connect the left half to the host when using USB or
+ZMK Studio. After one minute without a key press, the cat closes its eyes and
+displays `Zzzz`; the next key press wakes it immediately.
