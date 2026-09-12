@@ -24,6 +24,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #define BONGO_BACKGROUND lv_color_white()
 #define BONGO_FOREGROUND lv_color_black()
+#define BONGO_IDLE_TIMEOUT K_MINUTES(1)
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
@@ -196,10 +197,11 @@ static void draw_paw(lv_obj_t *canvas, int x, bool tapping) {
     }
 }
 
-static void draw_bongo_cat(lv_obj_t *canvas, bool alternate_paw) {
+static void draw_bongo_cat(lv_obj_t *canvas, bool alternate_paw, bool sleeping) {
     lv_draw_rect_dsc_t black;
     lv_draw_line_dsc_t outline;
     lv_draw_line_dsc_t face;
+    lv_draw_label_dsc_t sleep_label;
 
     init_rect(&black, BONGO_FOREGROUND, 0, 2);
     init_line(&outline, 3);
@@ -215,9 +217,22 @@ static void draw_bongo_cat(lv_obj_t *canvas, bool alternate_paw) {
     };
     draw_line(canvas, body, ARRAY_SIZE(body), &outline);
 
-    /* Dot eyes and the small W-shaped mouth from the original animation. */
-    draw_rect(canvas, 21, 70, 4, 6, &black);
-    draw_rect(canvas, 45, 70, 4, 6, &black);
+    if (sleeping) {
+        /* Closed eyes and a compact sleep bubble below the status bar. */
+        const lv_point_t left_eye[] = {{19, 72}, {23, 75}, {27, 72}};
+        const lv_point_t right_eye[] = {{43, 72}, {47, 75}, {51, 72}};
+        draw_line(canvas, left_eye, ARRAY_SIZE(left_eye), &face);
+        draw_line(canvas, right_eye, ARRAY_SIZE(right_eye), &face);
+
+        init_label(&sleep_label, LV_TEXT_ALIGN_RIGHT);
+        draw_text(canvas, 34, 25, 31, &sleep_label, "Zzzz");
+    } else {
+        /* Dot eyes from the awake frames of the original animation. */
+        draw_rect(canvas, 21, 70, 4, 6, &black);
+        draw_rect(canvas, 45, 70, 4, 6, &black);
+    }
+
+    /* The small W-shaped mouth stays visible in both states. */
     const lv_point_t mouth[] = {{28, 80}, {31, 84}, {34, 80}, {37, 84}, {41, 80}};
     draw_line(canvas, mouth, ARRAY_SIZE(mouth), &face);
 
@@ -238,9 +253,25 @@ static void rotate_clockwise(struct zmk_widget_bongo_status *widget) {
 }
 
 static void draw_frame(struct zmk_widget_bongo_status *widget) {
-    draw_bongo_cat(widget->drawing_canvas, widget->alternate_paw);
+    draw_bongo_cat(widget->drawing_canvas, widget->alternate_paw, widget->sleeping);
     draw_indicators(widget->drawing_canvas, widget);
     rotate_clockwise(widget);
+}
+
+static void idle_work_cb(struct k_work *work) {
+    ARG_UNUSED(work);
+
+    struct zmk_widget_bongo_status *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        widget->sleeping = true;
+        draw_frame(widget);
+    }
+}
+
+K_WORK_DELAYABLE_DEFINE(bongo_idle_work, idle_work_cb);
+
+static void restart_idle_timer(void) {
+    k_work_reschedule_for_queue(zmk_display_work_q(), &bongo_idle_work, BONGO_IDLE_TIMEOUT);
 }
 
 static void battery_update_cb(struct bongo_battery_state state) {
@@ -345,9 +376,12 @@ static void key_update_cb(struct bongo_key_state state) {
 
     struct zmk_widget_bongo_status *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        widget->sleeping = false;
         widget->alternate_paw = !widget->alternate_paw;
         draw_frame(widget);
     }
+
+    restart_idle_timer();
 }
 
 static struct bongo_key_state key_get_state(const zmk_event_t *eh) {
@@ -380,6 +414,7 @@ int zmk_widget_bongo_status_init(struct zmk_widget_bongo_status *widget, lv_obj_
     bongo_layer_listener_init();
     bongo_wpm_listener_init();
     bongo_key_listener_init();
+    restart_idle_timer();
 
     return 0;
 }

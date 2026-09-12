@@ -39,6 +39,7 @@ struct zmk_widget_bongo_status {
     const char *layer_label;
     enum bongo_connection_status connection;
     bool alternate_paw;
+    bool sleeping;
 };
 
 int zmk_widget_bongo_status_init(struct zmk_widget_bongo_status *widget, lv_obj_t *parent);
