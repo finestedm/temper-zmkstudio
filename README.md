@@ -1,9 +1,44 @@
 
 # Temper custom split ergo keyboard software
-Based on [temper](https://github.com/raeedcho/temper) that itself is a great continuation of [chocofi](https://github.com/pashutk/chocofi/).
+
+Based on [temper](https://github.com/raeedcho/temper), which is itself a
+continuation of [chocofi](https://github.com/pashutk/chocofi/).
 
 ## Firmware
-Use boards based on nrf52840 like ProMicro or Nice!Nanov2. This means that I use zmk. Compared to original Temper software this version supports [zmk.studio](https://zmk.dev/docs/features/studio) , so we can change our keymaps on the fly. The firmware will be created in an github action and you can use zmk.studio.
+
+The firmware targets nRF52840 Pro Micro-compatible controllers using ZMK. A
+GitHub Actions workflow builds separate UF2 files for the left and right halves.
+
+## Configuring the keymap
+
+The active [`config/temper.keymap`](config/temper.keymap) is plain ZMK
+devicetree. It retains the previous QWERTY/Miryoku-derived layers and behaviors,
+but no longer requires the Miryoku preprocessor to generate them. This makes a
+single firmware source usable with either editor below.
+
+### Nick Coutsos' ZMK Keymap Editor
+
+1. Open [ZMK Keymap Editor](https://nickcoutsos.github.io/keymap-editor/).
+2. Choose **GitHub** and authorize this repository, or choose **File System**
+   and open `config/temper.keymap` locally.
+3. Edit the bindings and save the keymap.
+4. Let GitHub Actions build the firmware, then flash the new left-half UF2.
+
+The keyboard geometry used by the editor is stored in `config/info.json`.
+Custom hold-taps, tap dances, Bluetooth profile actions, bootloader bindings,
+and the Studio unlock binding are declared directly in the keymap so the editor
+can preserve them.
+
+### ZMK Studio
+
+The left/central firmware is built with [ZMK Studio](https://zmk.studio/)
+support. Connect the left half over USB, invoke the `studio_unlock` binding on
+the **Nav** layer, and connect from ZMK Studio.
+
+ZMK Studio stores runtime keymap changes on the keyboard. Those changes do not
+flow back into `config/temper.keymap`. After flashing a keymap changed with the
+Nick Coutsos editor, use **Restore Stock Settings** in ZMK Studio so the newly
+flashed keymap becomes active.
 
 ## Displays
 
