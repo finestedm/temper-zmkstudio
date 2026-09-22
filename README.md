@@ -12,9 +12,16 @@ GitHub Actions workflow builds separate UF2 files for the left and right halves.
 ## Configuring the keymap
 
 The active [`config/temper.keymap`](config/temper.keymap) is plain ZMK
-devicetree. It retains the previous QWERTY/Miryoku-derived layers and behaviors,
-but no longer requires the Miryoku preprocessor to generate them. This makes a
-single firmware source usable with either editor below.
+devicetree. This branch uses the six-layer layout and custom hold-tap behaviors
+from [xphstos/xphstos_temper_zmk_](https://github.com/xphstos/xphstos_temper_zmk_),
+while keeping the file directly editable. This makes a single firmware source
+usable with either editor below.
+
+Hold the two inner thumb keys (positions 32 and 33) to activate the **BLT**
+layer. On that layer, the outermost top key of each half (Pinky Up) invokes the
+bootloader for the half on which it is pressed: the far-left key resets the left
+half and the far-right key resets the right half. The Studio unlock action is
+also available on the left half's innermost top-row key.
 
 ### Nick Coutsos' ZMK Keymap Editor
 
@@ -33,7 +40,7 @@ can preserve them.
 
 The left/central firmware is built with [ZMK Studio](https://zmk.studio/)
 support. Connect the left half over USB, invoke the `studio_unlock` binding on
-the **Nav** layer, and connect from ZMK Studio.
+the **BLT** layer, and connect from ZMK Studio.
 
 ZMK Studio stores runtime keymap changes on the keyboard. Those changes do not
 flow back into `config/temper.keymap`. After flashing a keymap changed with the
