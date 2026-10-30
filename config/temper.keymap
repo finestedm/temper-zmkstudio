@@ -202,9 +202,9 @@
             timeout-ms = <100>;
         };
 
-        a_quote_caps_lock {
+        a_o_caps_lock {
             bindings = <&kp CAPS>;
-            key-positions = <10 19>;
+            key-positions = <10 8>;
             layers = <0>;
         };
 
@@ -214,17 +214,18 @@
             layers = <0>;
         };
 
-        l_quote_minus {
+        i_o_minus {
             bindings = <&kp MINUS>;
-            key-positions = <18 19>;
+            key-positions = <7 8>;
             layers = <0>;
             timeout-ms = <150>;
         };
 
-        q_w_e_alt_f4 {
+        q_w_f_alt_f4 {
             bindings = <&kp LA(F4)>;
-            key-positions = <0 1 2>;
+            key-positions = <0 1 13>;
             layers = <0>;
+            timeout-ms = <100>;
         };
     };
 
@@ -237,7 +238,7 @@ keymap {
 &kp Q            &kp W            &kp E            &kp R            &kp T              &kp Y            &kp U            &kp I            &kp O            &kp P
 &u_mt LGUI A     &u_mt LALT S     &u_mt LCTRL D    &u_mt LSHFT F    &kp G              &kp H            &u_mt LSHFT J    &u_mt LCTRL K    &u_mt LALT L     &u_mt LGUI SQT
 &u_lt 3 Z        &u_mt RALT X     &kp C            &kp V            &kp B              &kp N            &kp M            &kp COMMA        &u_mt RALT DOT    &u_lt 3 SLASH
-                                    &u_lt 6 ESC      &u_lt 4 SPACE    &u_lt 5 TAB         &u_lt 8 RET       &u_lt 7 BSPC      &u_lt 9 DEL
+                                    &u_lt 4 ESC      &u_lt 5 SPACE    &u_lt 6 TAB         &u_lt 8 RET       &u_lt 7 BSPC      &u_lt 9 DEL
             >;
         };
 
@@ -247,7 +248,7 @@ keymap {
 &kp Q            &kp W            &kp F            &kp P            &kp B              &kp J            &kp L            &kp U            &kp Y            &kp SQT
 &u_mt LGUI A     &u_mt LALT R     &u_mt LCTRL S    &u_mt LSHFT T    &kp G              &kp M            &u_mt LSHFT N    &u_mt LCTRL E    &u_mt LALT I     &u_mt LGUI O
 &u_lt 3 Z        &u_mt RALT X     &kp C            &kp D            &kp V              &kp K            &kp H            &kp COMMA        &u_mt RALT DOT    &u_lt 3 SLASH
-                                    &u_lt 6 ESC      &u_lt 4 SPACE    &u_lt 5 TAB         &u_lt 8 RET       &u_lt 7 BSPC      &u_lt 9 DEL
+                                    &u_lt 4 ESC      &u_lt 5 SPACE    &u_lt 6 TAB         &u_lt 8 RET       &u_lt 7 BSPC      &u_lt 9 DEL
             >;
         };
 
