@@ -202,9 +202,9 @@
             timeout-ms = <100>;
         };
 
-        a_o_caps_lock {
+        a_quote_caps_lock {
             bindings = <&kp CAPS>;
-            key-positions = <10 8>;
+            key-positions = <10 19>;
             layers = <0>;
         };
 
@@ -214,16 +214,16 @@
             layers = <0>;
         };
 
-        i_o_minus {
+        l_quote_minus {
             bindings = <&kp MINUS>;
-            key-positions = <7 8>;
+            key-positions = <18 19>;
             layers = <0>;
             timeout-ms = <150>;
         };
 
-        q_w_f_alt_f4 {
+        q_w_e_alt_f4 {
             bindings = <&kp LA(F4)>;
-            key-positions = <0 1 13>;
+            key-positions = <0 1 2>;
             layers = <0>;
             timeout-ms = <100>;
         };
