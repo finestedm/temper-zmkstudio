@@ -9,6 +9,8 @@ continuation of [chocofi](https://github.com/pashutk/chocofi/).
 The firmware targets nRF52840 Pro Micro-compatible controllers using ZMK. A
 GitHub Actions workflow builds separate UF2 files for the left and right halves.
 
+For flashing and day-to-day setup, see the [Temper user guide](docs/temper-user-guide.md).
+
 ## Configuring the keymap
 
 The active [`config/temper.keymap`](config/temper.keymap) is plain ZMK
