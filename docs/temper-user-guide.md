@@ -3,6 +3,8 @@
 This guide is adapted from the [FunkeeB user guide](https://funkeeb.vercel.app/?guide=user)
 and updated for the `finestedm/temper-zmkstudio` firmware repository.
 
+![FunkeeB Temper split keyboard](assets/temper-guide/temper-overview.jpg)
+
 ## 1. Fork the firmware repository
 
 Fork [finestedm/temper-zmkstudio](https://github.com/finestedm/temper-zmkstudio)
@@ -13,6 +15,8 @@ Use the repository's default [`main`](https://github.com/finestedm/temper-zmkstu
 branch for the supported keymap, displays, Bongo Cat animation, ZMK Studio and
 Nick Coutsos editor integration.
 
+![Forking the Temper firmware repository on GitHub](assets/temper-guide/01-fork-repository.png)
+
 ## 2. Edit your keymap
 
 Open [Nick Coutsos' ZMK Keymap Editor](https://nickcoutsos.github.io/keymap-editor/)
@@ -22,11 +26,15 @@ bindings, and save the file back to the repository.
 The keymap is plain ZMK devicetree and is also compatible with ZMK Studio. The
 editor geometry is described by `config/info.json`.
 
+![Editing the Temper keymap in Nick Coutsos' editor](assets/temper-guide/02-keymap-editor.png)
+
 ## 3. Build the firmware
 
 Saving a change to GitHub starts the repository's **Build ZMK firmware** action.
 Open the **Actions** tab in your fork and wait for the newest workflow run to
 finish. A normal build takes a few minutes.
+
+![Opening the firmware workflow in GitHub Actions](assets/temper-guide/03-actions-build.png)
 
 ## 4. Download the artifacts
 
@@ -36,6 +44,8 @@ contains three UF2 files:
 - `temper-left-niceview-bongo.uf2` — firmware for the left/central half;
 - `temper-right-niceview-status.uf2` — firmware for the right/peripheral half;
 - `settings-reset.uf2` — temporary settings-reset firmware.
+
+![Downloading the firmware artifact from GitHub Actions](assets/temper-guide/04-download-artifacts.png)
 
 Do not leave `settings-reset.uf2` installed as the normal firmware. It is used
 only for clearing stored Bluetooth and runtime keymap settings.
@@ -47,10 +57,14 @@ When moving between substantially different layouts, first flash
 that half. This clears stored ZMK Studio settings and Bluetooth bonds, so the
 keyboard must be paired again afterwards.
 
+![UF2 files included in the firmware artifact](assets/temper-guide/05-firmware-files.png)
+
 ## 6. Connect the USB cable
 
 For the normal left/central firmware, connect the USB-C cable to the **left
 half**. The left half is the central device and is the side used for ZMK Studio.
+
+![Connecting USB-C to the left half](assets/temper-guide/06-connect-usb.jpg)
 
 ## 7. Enter bootloader mode
 
@@ -70,6 +84,8 @@ The bootloader action is source-specific, so it resets the half on which `Q` or
 `P` is physically pressed. The right half must be paired and connected to the
 left half for its shortcut to be processed.
 
+![Reset and ground pins used to enter the bootloader](assets/temper-guide/07-bootloader-pins.jpg)
+
 ## 8. Flash the correct UF2
 
 Drag the UF2 file onto the `NICENANO` drive:
@@ -84,6 +100,8 @@ but the split roles and key behavior will be wrong.
 
 After flashing, disconnect USB, reconnect the battery if needed, and power the
 keyboard on again.
+
+![Copying a UF2 file to the NICENANO drive](assets/temper-guide/08-copy-uf2.png)
 
 ## 9. Use ZMK Studio
 
