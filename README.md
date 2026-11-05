@@ -9,6 +9,8 @@ continuation of [chocofi](https://github.com/pashutk/chocofi/).
 The firmware targets nRF52840 Pro Micro-compatible controllers using ZMK. A
 GitHub Actions workflow builds separate UF2 files for the left and right halves.
 
+For flashing and day-to-day setup, see the [Temper user guide](docs/temper-user-guide.md).
+
 ## Configuring the keymap
 
 The active [`config/temper.keymap`](config/temper.keymap) is plain ZMK
@@ -32,8 +34,9 @@ can preserve them.
 ### ZMK Studio
 
 The left/central firmware is built with [ZMK Studio](https://zmk.studio/)
-support. Connect the left half over USB, invoke the `studio_unlock` binding on
-the **Nav** layer, and connect from ZMK Studio.
+support. Connect the left half over USB, hold the thumb key that types `Esc` to
+activate **Nav**, press `T` to invoke `studio_unlock`, and connect from ZMK
+Studio.
 
 ZMK Studio stores runtime keymap changes on the keyboard. Those changes do not
 flow back into `config/temper.keymap`. After flashing a keymap changed with the
