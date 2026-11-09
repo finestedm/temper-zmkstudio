@@ -1,0 +1,8 @@
+file_format: "1"
+id: temper_tps43
+name: Temper TPS43 touchpad
+type: shield
+url: https://github.com/finestedm/zmk-driver-azoteq-iqs5xx
+requires: [pro_micro]
+features:
+  - pointing

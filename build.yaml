@@ -8,10 +8,16 @@
 ---
 include:
   - board: nice_nano@2.0.0//zmk
-    shield: temper_left nice_view_adapter nice_view
+    shield: temper_left nice_view_adapter nice_view_bongo
     snippet: studio-rpc-usb-uart
     cmake-args: -DCONFIG_ZMK_STUDIO=y
+    artifact-name: temper-left-niceview-bongo
   - board: nice_nano@2.0.0//zmk
-    shield: temper_right nice_view_adapter nice_view
+    shield: temper_right nice_view_adapter nice_view_funkeeb
+    artifact-name: temper-right-niceview-status
+  - board: nice_nano@2.0.0//zmk
+    shield: temper_right temper_tps43
+    artifact-name: temper-right-tps43-touchpad
   - board: nice_nano@2.0.0//zmk
     shield: settings_reset
+    artifact-name: settings-reset

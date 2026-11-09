@@ -1,0 +1,12 @@
+if SHIELD_TEMPER_TPS43
+
+config I2C
+    default y
+
+config ZMK_POINTING
+    default y
+
+config INPUT_AZOTEQ_IQS5XX
+    default y
+
+endif

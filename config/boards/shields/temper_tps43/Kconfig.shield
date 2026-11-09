@@ -1,0 +1,2 @@
+config SHIELD_TEMPER_TPS43
+    def_bool $(shields_list_contains,temper_tps43)
