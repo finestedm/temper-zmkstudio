@@ -57,3 +57,17 @@ WPM graph fills the space between the status indicators and the bottom-aligned
 cat. The seven animation frames are adapted from
 [SamIAm2000/zmk](https://github.com/SamIAm2000/zmk) (MIT): they are scaled for
 this portrait layout and the flower is removed.
+
+## Optional TPS43 right half
+
+GitHub Actions also builds `temper-right-tps43-touchpad.uf2` as an alternative
+firmware for a right half fitted with a TPS43/IQS5xx touchpad instead of the
+nice!view. Keep using `temper-left-niceview-bongo.uf2` on the left half; it is
+prepared to receive pointing events from either right-half variant.
+
+The touchpad variant uses the same five-pin header and pin assignment as the
+tested FunkeeB Corne V4 integration: SDA on Pro Micro pin 2, SCL on pin 3, RDY
+on pin 1, plus VCC and GND. It supports pointer movement, one-finger left click,
+two-finger right click, press-and-hold dragging, two-finger scrolling and the
+driver's low-power mode. Do not flash the TPS43 artifact onto a right half with
+a display; use `temper-right-niceview-status.uf2` for that hardware.
