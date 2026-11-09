@@ -5,6 +5,26 @@
  */
 
 #include "temper.dtsi"
+#include <dt-bindings/zmk/keys.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
+/ {
+    input_processors {
+        tps43_desktop_swipe: tps43_desktop_swipe {
+            compatible = "zmk,input-processor-behaviors";
+            #input-processor-cells = <0>;
+
+            /* Match the proven FunkeeB Corne V4 TPS43 gesture mapping. */
+            codes = <INPUT_BTN_3 INPUT_BTN_4 INPUT_BTN_5 INPUT_BTN_6>;
+            bindings = <
+                &kp LC(LG(RIGHT))
+                &kp LC(LG(LEFT))
+                &kp LG(TAB)
+                &kp LG(D)
+            >;
+        };
+    };
+};
 
 &kscan0 {
     col-gpios
@@ -19,4 +39,5 @@
 /* Receive pointing events forwarded by the optional TPS43 right half. */
 &tps43_listener {
     status = "okay";
+    input-processors = <&tps43_desktop_swipe>;
 };
