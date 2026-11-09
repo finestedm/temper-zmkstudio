@@ -18,3 +18,8 @@
         zephyr,display = &nice_view;
     };
 };
+
+/* This build uses the display, not the optional TPS43 split input. */
+&tps43_split {
+    status = "disabled";
+};
