@@ -7,7 +7,9 @@ manifest:
   projects:
     - name: zmk
       remote: zmkfirmware
-      revision: main
+      # Verified with TPS43: keeps split pointing reports smooth and preserves
+      # compatibility with the custom nice!view screens and ZMK Studio.
+      revision: 6e2ef41e022d555b10f116e395832913f71717b3
       import: app/west.yml
     - name: zmk-driver-azoteq-iqs5xx
       remote: finestedm
