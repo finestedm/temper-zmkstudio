@@ -11,6 +11,13 @@ GitHub Actions workflow builds separate UF2 files for the left and right halves.
 
 For flashing and day-to-day setup, see the [Temper user guide](docs/temper-user-guide.md).
 
+## Case models
+
+Editable STEP models for the split case are available in
+[`case/temper-tps43`](case/temper-tps43). The set contains separate top and
+bottom parts for both halves plus a dedicated right-side TPS43 holder. These
+files can be adjusted in CAD or exported to STL/3MF for printing.
+
 ## Configuring the keymap
 
 The active [`config/temper.keymap`](config/temper.keymap) is plain ZMK
