@@ -16,7 +16,9 @@ For flashing and day-to-day setup, see the [Temper user guide](docs/temper-user-
 Editable STEP models for the split case are available in
 [`case/temper-tps43`](case/temper-tps43). The set contains separate top and
 bottom parts for both halves plus a dedicated right-side TPS43 holder. These
-files can be adjusted in CAD or exported to STL/3MF for printing.
+files can be adjusted in CAD or exported to STL/3MF for printing. The folder's
+README also lists the required fasteners and connector heights and explains how
+to wire the TPS43 to the five-pin display socket.
 
 ## Configuring the keymap
 
